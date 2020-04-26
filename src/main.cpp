@@ -104,6 +104,7 @@ void saveVoltagePWM(float value) {
 /**
  * Calculates frequency by measuring time between falling edges of the
  * ethanol sensor input
+ * @return boolean - true if valid frequency
 **/
 bool calculateFrequency() {
   if (fall < rise || lastFall == 0)
