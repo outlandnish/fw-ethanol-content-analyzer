@@ -1,6 +1,8 @@
 # Ethanol Content Analyzer
 
-Open source ethanol content analyzer that converts signals from Continental Flex Fuel sensors into 0 - 5V analog signals for ECUs. Project built using PlatformIO and targets the Arduino Nano Every. Will be modified soon for the Arduino Nano as well.
+Open source ethanol content analyzer that converts signals from Continental Flex Fuel sensors into 0 - 5V analog signals for ECUs. 
+
+Project built using PlatformIO and targets the Arduino Nano Every. Will be modified soon for the Arduino Nano as well.
 
 ### Work In Progress
 
