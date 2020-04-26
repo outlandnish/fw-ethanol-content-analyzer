@@ -117,6 +117,8 @@ bool calculateFrequency() {
     frequency = tempFrequency;
   else
     frequency = (1 - FREQUENCY_ALPHA) * frequency + FREQUENCY_ALPHA * tempFrequency;
+
+  return true;
 }
 
 /** 
