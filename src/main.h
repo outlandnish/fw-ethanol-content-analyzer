@@ -55,6 +55,7 @@ volatile uint16_t ticks;
 float loadVoltagePWM();
 void saveVoltagePWM(float value);
 
+bool calculateFrequency();
 void frequencyToEthanolContent(float frequency, float scaler);
 void calculateOutput();
 
