@@ -3,7 +3,7 @@
 
 // I/O
 #define ECA_INPUT                 A4
-#define O2_OUTPUT                 10
+#define ETHANOL_OUTPUT            10
 
 // EEPROM
 #define EEPROM_O2_PWM_ADDRESS     0
@@ -11,8 +11,8 @@
 // constants
 #define PWM_RESOLUTION            255.0f
 #define OUTPUT_REF_VOLTAGE        5.0f
-#define FILTER_ALPHA              0.01f
 #define FREQUENCY_ALPHA           0.01f
+#define OUTPUT_ALPHA              0.01f
 #define MIN_PERIOD                5.0f    // ms (200 Hz)
 
 #define E0_FREQUENCY              50.f    // Hz
@@ -28,10 +28,11 @@
 #define E0_PWM                    25.5f   // duty cycle
 #define E100_PWM                  229.5f  // duty cycle
 
-#define SAVE_INTERVAL_MS          300000  // 5 minutes in milliseconds
+#define SAVE_INTERVAL_MS          60000   // 1 minutes in milliseconds
 
-#define LOG_ETHANOL
-#define LOG_OUTPUT
+// #define LOG_FREQUENCY
+// #define LOG_ETHANOL
+// #define LOG_OUTPUT
 
 bool previouslyStored = true;
 float tempOutputVoltage = 0.5, outputVoltage = 0.5, ethanol = 0;

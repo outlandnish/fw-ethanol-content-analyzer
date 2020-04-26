@@ -2,14 +2,17 @@
 
 void setup()
 {
-  Serial.begin(115200);
-  while (!Serial) { yield; }
-  pinMode(O2_OUTPUT, OUTPUT);
+  #if defined(LOG_FREQUENCY) or defined(LOG_ETHANOL) or defined(LOG_OUTPUT)
+    Serial.begin(115200);
+    while (!Serial) { yield; }
+  #endif
+  
+  pinMode(ETHANOL_OUTPUT, OUTPUT);
   pinMode(ECA_INPUT, INPUT);
 
   // load last stored PWM value for output
   outputPWM = loadVoltagePWM();
-  analogWrite(O2_OUTPUT, outputPWM);
+  analogWrite(ETHANOL_OUTPUT, outputPWM);
 
   attachInterrupt(ECA_INPUT, onRise, RISING);
 }
@@ -25,8 +28,6 @@ void loop()
     // additionally, you can get the fuel temperature from the duty cycle of the signal
     if (period >=  MIN_PERIOD) {
       float tempFrequency = 1.0f / (period / 1000.0f);
-      Serial.print("Frequency: ");
-      Serial.print(tempFrequency);
 
       // if we haven't calculated frequency, use the current frequency. 
       // Otherwise, run it through an exponential filter to smooth readings
@@ -37,17 +38,37 @@ void loop()
 
       // get ethanol content from sensor frequency
       frequencyToEthanolContent(frequency, frequencyScaler);
-
-      // calculate the output voltage and PWM values
-      calculateOutput();
-
-      // update our output to the O2 sensors
-      analogWrite(O2_OUTPUT, (int)outputPWM);
-
-      #if defined(LOG_ETHANOL) or defined(LOG_OUTPUT)
-        Serial.println("");
-      #endif
     }
+
+    // calculate the output voltage and PWM values
+    calculateOutput();
+
+    // update our output to the O2 sensors
+    analogWrite(ETHANOL_OUTPUT, (int)outputPWM);
+
+    #ifdef LOG_FREQUENCY
+      Serial.print("Frequency: ");
+      Serial.print(frequency);
+    #endif
+
+    #ifdef LOG_ETHANOL
+      Serial.print("\tEthanol: ");
+      Serial.print(ethanol);
+      Serial.print("%");
+    #endif
+
+    #ifdef LOG_OUTPUT
+      Serial.print("\tOutput (v): ");
+      Serial.print(tempOutputVoltage);
+      Serial.print("\tFiltered Output (v): ");
+      Serial.print(outputVoltage);
+      Serial.print("\tPWM: ");
+      Serial.print(outputPWM);
+    #endif
+
+    #if defined(LOG_ETHANOL) or defined(LOG_OUTPUT) or defined(LOG_FREQUENCY)
+      Serial.println("");
+    #endif
 
     // periodically store last output pwm
     uint32_t now = millis();
@@ -109,12 +130,6 @@ void frequencyToEthanolContent(float frequency, float scaler) {
 
   // bound ethanol content by a max of 0 to 100
   ethanol = max(0.0f, min(100.0f, ethanol));
-
-#ifdef LOG_ETHANOL
-  Serial.print("\tEthanol: ");
-  Serial.print(ethanol);
-  Serial.print("%");
-#endif
 }
 
 /**
@@ -125,17 +140,8 @@ void calculateOutput() {
   tempOutputVoltage = max(E0_VOLTAGE, min((voltageScaler * ethanol) + E0_VOLTAGE, E100_VOLTAGE));
 
   // run exponential filter to smooth output
-  outputVoltage = (1.0f - FILTER_ALPHA) * outputVoltage  + FILTER_ALPHA * tempOutputVoltage;
+  outputVoltage = (1.0f - OUTPUT_ALPHA) * outputVoltage  + OUTPUT_ALPHA * tempOutputVoltage;
 
   // set output pwm value
   outputPWM = (int)ceil(outputVoltage * (PWM_RESOLUTION / OUTPUT_REF_VOLTAGE));
-
-#ifdef LOG_OUTPUT
-  Serial.print("\tOutput (v): ");
-  Serial.print(tempOutputVoltage);
-  Serial.print("\tFiltered Output (v): ");
-  Serial.print(outputVoltage);
-  Serial.print("\tPWM: ");
-  Serial.print(outputPWM);
-#endif
 }
