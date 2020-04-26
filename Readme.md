@@ -4,8 +4,8 @@ Open source ethanol content analyzer that converts signals from Continental Flex
 
 ### Work In Progress
 
-[] Switch to using hardware timers instead of interrupts for rising and falling edges of the signal
-[] Add support for the Arduino Nano (instead of the Arduino Nano Every)
+📋 Switch to using hardware timers instead of interrupts for rising and falling edges of the signal
+📋 Add support for the Arduino Nano (instead of the Arduino Nano Every)
 
 ### Circuitry
 
