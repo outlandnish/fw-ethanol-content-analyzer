@@ -1,0 +1,67 @@
+{
+    "configurations": [
+        {
+            "name": "!!! WARNING !!! AUTO-GENERATED FILE, PLEASE DO NOT MODIFY IT AND USE https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "c:/Users/nisha/code/firmware-eca-nano/include",
+                "c:/Users/nisha/code/firmware-eca-nano/src",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/EEPROM/src",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/cores/arduino/api/deprecated",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/cores/arduino",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/variants/nona4809",
+                "c:/Users/nisha/code/firmware-eca-nano/lib/tc_lib",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/HID/src",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/SPI/src",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/SoftwareSerial/src",
+                "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/Wire/src",
+                "C:/Users/nisha/.platformio/packages/tool-unity",
+                ""
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "c:/Users/nisha/code/firmware-eca-nano/include",
+                    "c:/Users/nisha/code/firmware-eca-nano/src",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/EEPROM/src",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/cores/arduino/api/deprecated",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/cores/arduino",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/variants/nona4809",
+                    "c:/Users/nisha/code/firmware-eca-nano/lib/tc_lib",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/HID/src",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/SPI/src",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/SoftwareSerial/src",
+                    "C:/Users/nisha/.platformio/packages/framework-arduino-megaavr/libraries/Wire/src",
+                    "C:/Users/nisha/.platformio/packages/tool-unity",
+                    ""
+                ]
+            },
+            "defines": [
+                "PLATFORMIO=40301",
+                "ARDUINO_AVR_NANO_EVERY",
+                "AVR_NANO_4809_328MODE",
+                "MILLIS_USE_TIMERB3",
+                "NO_EXTERNAL_I2C_PULLUP",
+                "F_CPU=16000000L",
+                "ARDUINO_ARCH_MEGAAVR",
+                "ARDUINO=10808",
+                "USB_VID=0x2341",
+                "USB_PID=0x0058",
+                "USB_PRODUCT=\"Arduino Nano Every\"",
+                "USB_MANUFACTURER=\"Arduino\"",
+                ""
+            ],
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "compilerPath": "C:/Users/nisha/.platformio/packages/toolchain-atmelavr/bin/avr-gcc.exe",
+            "compilerArgs": [
+                "-mmcu=atmega4809",
+                ""
+            ]
+        }
+    ],
+    "version": 4
+}
