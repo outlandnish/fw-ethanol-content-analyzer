@@ -101,10 +101,16 @@ void saveVoltagePWM(float value) {
   Serial.println(value);
 }
 
+/**
+ * Calculates frequency by measuring time between falling edges of the
+ * ethanol sensor input
+**/
 bool calculateFrequency() {
   if (fall < rise || lastFall == 0)
     return false;
   
+  // ensure the period is valid
+  // > 200 Hz is invalid    
   float period = fall - lastFall;
   if (period < MIN_PERIOD)
     return false;
