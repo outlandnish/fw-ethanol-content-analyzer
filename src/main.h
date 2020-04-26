@@ -34,6 +34,10 @@
 // #define LOG_ETHANOL
 // #define LOG_OUTPUT
 
+#if defined(LOG_ETHANOL) or defined(LOG_OUTPUT) or defined(LOG_FREQUENCY)
+#define LOGGING_ENABLED
+#endif
+
 bool previouslyStored = true;
 float tempOutputVoltage = 0.5, outputVoltage = 0.5, ethanol = 0;
 float outputPWM = DEFAULT_OUTPUT_PWM;

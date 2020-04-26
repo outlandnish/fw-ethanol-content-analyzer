@@ -2,7 +2,7 @@
 
 void setup()
 {
-  #if defined(LOG_FREQUENCY) or defined(LOG_ETHANOL) or defined(LOG_OUTPUT)
+  #ifdef LOGGING_ENABLED
     Serial.begin(115200);
     while (!Serial) { yield; }
   #endif
@@ -55,7 +55,7 @@ void loop()
     Serial.print(outputPWM);
   #endif
 
-  #if defined(LOG_ETHANOL) or defined(LOG_OUTPUT) or defined(LOG_FREQUENCY)
+  #ifdef LOGGING_ENABLED
     Serial.println("");
   #endif
 }
