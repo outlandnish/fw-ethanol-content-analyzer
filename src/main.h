@@ -59,6 +59,5 @@ void calculateOutput();
 
 void onRise();
 void onFall();
-bool hasRisen = false, hasFallen = false;
 
 uint32_t fall = 0, lastFall = 0, rise = 0;

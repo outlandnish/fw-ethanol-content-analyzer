@@ -24,13 +24,16 @@ void loop()
     // between 50 Hz - 150 Hz -> ethanol = frequency - 50
     // additionally, you can get the fuel temperature from the duty cycle of the signal
     if (period >=  MIN_PERIOD) {
+      float tempFrequency = 1.0f / (period / 1000.0f);
       Serial.print("Frequency: ");
-      Serial.print(1.0f / (period / 1000.0f));
+      Serial.print(tempFrequency);
 
+      // if we haven't calculated frequency, use the current frequency. 
+      // Otherwise, run it through an exponential filter to smooth readings
       if (frequency == 0)
-        frequency = 1.0f / (period / 1000.0f);
+        frequency = tempFrequency;
       else
-        frequency = (1 - FREQUENCY_ALPHA) * frequency + FREQUENCY_ALPHA * (1.0f / (period / 1000.0f));
+        frequency = (1 - FREQUENCY_ALPHA) * frequency + FREQUENCY_ALPHA * tempFrequency;
 
       // get ethanol content from sensor frequency
       frequencyToEthanolContent(frequency, frequencyScaler);
