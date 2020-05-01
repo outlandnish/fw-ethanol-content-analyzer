@@ -37,9 +37,8 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=40301",
+                "PLATFORMIO=40303",
                 "ARDUINO_AVR_NANO_EVERY",
-                "AVR_NANO_4809_328MODE",
                 "MILLIS_USE_TIMERB3",
                 "NO_EXTERNAL_I2C_PULLUP",
                 "F_CPU=16000000L",

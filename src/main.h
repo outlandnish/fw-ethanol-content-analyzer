@@ -38,6 +38,22 @@
 #define LOGGING_ENABLED
 #endif
 
+// DAC ref used for negative input in the comparator
+// 1/2 of 5V = 2.5V
+// scaled to 256 => 128
+#define DACREF_VALUE 128
+
+/*
+  AC Comaparator Pins
+  A2/D16 = PD1 = AIN1 = P3
+  A1/D15 = PD2 = AIN2 = P0
+  A0/D14 = PD3 = AIN3 = N0
+  A6/D20 = PD4 = AIN4 = P1
+  A7/D21 = PD5 = AIN5 = N1
+  PD6 = AIN6 = P2
+  AREF = PD7 = AIN7 = N2
+*/
+
 bool previouslyStored = true;
 float tempOutputVoltage = 0.5, outputVoltage = 0.5, ethanol = 0;
 float outputPWM = DEFAULT_OUTPUT_PWM;
@@ -63,7 +79,10 @@ bool calculateFrequency();
 void frequencyToEthanolContent(float frequency, float scaler);
 void calculateOutput();
 
-void onRise();
-void onFall();
+// void onRise();
+// void onFall();
+
+void setupTimer();
 
 uint32_t fall = 0, lastFall = 0, rise = 0;
+uint16_t period = 0, pulse = 0;
