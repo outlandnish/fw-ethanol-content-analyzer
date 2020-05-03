@@ -39,7 +39,7 @@
 #endif
 
 // DAC ref used for negative input in the comparator
-// 0.8 * 1.5V = 4V
+// 0.8 * 1.5V = 1.2
 // scaled to 256 => 204
 #define DACREF_VALUE (0.8 * 256 / 1.5)
 
