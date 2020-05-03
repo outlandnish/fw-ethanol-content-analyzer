@@ -44,7 +44,7 @@
 #define DACREF_VALUE (0.8 * 256 / 1.5)
 
 /*
-  AC Comaparator Pins
+  AC Comparator Pins
   A2/D16 = PD1 = AIN1 = P3
   A1/D15 = PD2 = AIN2 = P0
   A0/D14 = PD3 = AIN3 = N0
@@ -52,6 +52,8 @@
   A7/D21 = PD5 = AIN5 = N1
   PD6 = AIN6 = P2
   AREF = PD7 = AIN7 = N2
+
+  we're using A6 (AC Positive Input 1)
 */
 
 bool previouslyStored = true;
