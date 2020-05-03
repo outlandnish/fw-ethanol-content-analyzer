@@ -1,5 +1,4 @@
 #include "main.h"
-#define LOGGING_ENABLED
 
 void setup()
 {
@@ -23,44 +22,25 @@ void setup()
 
 void loop()
 {
-  // Serial.print("$");
-  // Serial.print(analogRead(A6));
-  // Serial.println(";");
-  // // get ethanol content from sensor frequency
-  // bool valid = calculateFrequency();
-  // if (valid)
-  //   frequencyToEthanolContent(frequency, frequencyScaler);
+  // get ethanol content from sensor frequency
+  if (TCB0.INTFLAGS && calculateFrequency())
+    frequencyToEthanolContent(frequency, frequencyScaler);
 
-  // // calculate the output voltage and PWM values
-  // calculateOutput();
+  // calculate the output voltage and PWM values
+  calculateOutput();
 
-  // // update our output to the O2 sensors
-  // analogWrite(ETHANOL_OUTPUT, (int)outputPWM);
+  // update our output to the O2 sensors
+  analogWrite(ETHANOL_OUTPUT, (int)outputPWM);
 
-  // // periodically store last output pwm
-  // uint32_t now = millis();
-  // if (!previouslyStored || now - lastSave > SAVE_INTERVAL_MS)
-  //   saveVoltagePWM(outputPWM); 
-
-  if (TCB0.INTFLAGS) {
-    period = TCB0.CNT;
-    pulse = TCB0.CCMP;
-    uint8_t ccmpl = TCB0.CCMPL;
-    uint8_t ccmph = TCB0.CCMPH;
-
-    Serial.print("$");
-    Serial.print(period);
-    Serial.print(" ");
-    Serial.print(pulse);
-    Serial.print(" ");
-    Serial.print(ccmpl);
-    Serial.print(" ");
-    Serial.println(ccmph);
-    Serial.println(";");
-  }
+  // periodically store last output pwm
+  uint32_t now = millis();
+  if (!previouslyStored || now - lastSave > SAVE_INTERVAL_MS)
+    saveVoltagePWM(outputPWM); 
 
   #ifdef LOG_FREQUENCY
-    Serial.print("Frequency: ");
+    Serial.print("Period (raw):");
+    Serial.print(period);
+    Serial.print("\tFrequency: ");
     Serial.print(frequency);
   #endif
 
@@ -80,15 +60,21 @@ void loop()
   #endif
 
   #ifdef LOGGING_ENABLED
-    // Serial.println("");
+    Serial.println("");
   #endif
 }
 
+/*
+  Feeds the data from the Ethanol Content Analyzer into the Analog Comparator
+  on the Atmega4809. The signal is compared to a voltage reference from the internal
+  DAC to see when the signal is high / low. The output from the Analog Comparator is fed
+  into timer TCB0 which counts the time between the positive and negative edges of the signal
+*/
 void setupTimer() {
   // PD4
   PORTD.PIN4CTRL = PORT_ISC_INPUT_DISABLE_gc;
 
-  // Voltage reference at 1.5V
+  // Use internal voltage reference @ 1.5V
   VREF.CTRLA = VREF_AC0REFSEL_1V5_gc;
   // AC0 DACREF reference enable
   VREF.CTRLB = VREF_AC0REFEN_bm;
@@ -107,28 +93,15 @@ void setupTimer() {
   // Connect user to event channel 0
   EVSYS.USERTCB0 = EVSYS_CHANNEL_CHANNEL0_gc;
 
-  // enable TCB and set CLK_PER/2 (From Prescaler)
+  // enable TCB and use clock prescaler / 2
   TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm | TCB_RUNSTDBY_bm;
   // Configure TCB in Input Capture Frequency and Pulse-Width measurement mode
   TCB0.CTRLB = TCB_CNTMODE_FRQPW_gc;
   // Enable Capture or Timeout interrupt
   TCB0.INTCTRL = TCB_CAPT_bm;
   // Enable Input Capture event
-  TCB0.EVCTRL = TCB_CAPTEI_bm; 
+  TCB0.EVCTRL = TCB_CAPTEI_bm;
 }
-
-// Interrupt Service Routine (ISR) to store the last time we saw the signal rise from low to high
-// void onRise() {
-//   rise = millis();
-//   attachInterrupt(ECA_INPUT, onFall, FALLING);
-// }
-
-// Interrupt Service Routine (ISR) to store the last time we saw the signal fall from high to low
-// void onFall() {
-//   lastFall = fall;
-//   fall = millis();
-//   attachInterrupt(ECA_INPUT, onRise, RISING);
-// }
 
 // Loads the last output PWM value from EEPROM
 float loadVoltagePWM() {
@@ -159,21 +132,21 @@ void saveVoltagePWM(float value) {
 }
 
 /**
- * Calculates frequency by measuring time between falling edges of the
+ * Calculates frequency using the output from the AC Comparator + TCB Counter
  * ethanol sensor input
  * @return boolean - true if valid frequency
 **/
 bool calculateFrequency() {
-  if (fall < rise || lastFall == 0)
-    return false;
-  
-  // ensure the period is valid
-  // > 200 Hz is invalid    
-  float period = fall - lastFall;
+  period = TCB0.CNT;
+  pulse = TCB0.CCMP;
+
+  // not sure if this is the correct conversion
+  // I assumed that the period is in microseconds and it seems to chuck out a sane value
+  float tempFrequency = 1000000.f / (float) period;
+  // dutyCycle = pulse / 1000;  // not sure what the conversion factor is. wild guess here
+
   if (period < MIN_PERIOD)
     return false;
-
-  float tempFrequency = 1.0f / (period / 1000.0f);
 
   // if we haven't calculated frequency, use the current frequency. 
   // Otherwise, run it through an exponential filter to smooth readings

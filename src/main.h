@@ -2,7 +2,7 @@
 #include "EEPROM.h"
 
 // I/O
-#define ECA_INPUT                 A4
+#define ECA_INPUT                 A6
 #define ETHANOL_OUTPUT            10
 
 // EEPROM
@@ -13,7 +13,7 @@
 #define OUTPUT_REF_VOLTAGE        5.0f
 #define FREQUENCY_ALPHA           0.01f
 #define OUTPUT_ALPHA              0.01f
-#define MIN_PERIOD                5.0f    // ms (200 Hz)
+#define MIN_PERIOD                5000.f    // microseconds (200 Hz)
 
 #define E0_FREQUENCY              50.f    // Hz
 #define E100_FREQUENCY            150.f   // Hz
@@ -30,18 +30,18 @@
 
 #define SAVE_INTERVAL_MS          60000   // 1 minutes in milliseconds
 
-// #define LOG_FREQUENCY
-// #define LOG_ETHANOL
-// #define LOG_OUTPUT
+#define LOG_FREQUENCY
+#define LOG_ETHANOL
+#define LOG_OUTPUT
 
 #if defined(LOG_ETHANOL) or defined(LOG_OUTPUT) or defined(LOG_FREQUENCY)
 #define LOGGING_ENABLED
 #endif
 
 // DAC ref used for negative input in the comparator
-// 1/2 of 5V = 2.5V
-// scaled to 256 => 128
-#define DACREF_VALUE 128
+// 0.8 * 1.5V = 4V
+// scaled to 256 => 204
+#define DACREF_VALUE (0.8 * 256 / 1.5)
 
 /*
   AC Comaparator Pins
