@@ -13,7 +13,7 @@
 #define OUTPUT_REF_VOLTAGE        5.0f
 #define FREQUENCY_ALPHA           0.01f
 #define OUTPUT_ALPHA              0.01f
-#define MIN_PERIOD                5000.f    // microseconds (200 Hz)
+#define MAX_FREQUENCY             200.f   // Hz
 
 #define E0_FREQUENCY              50.f    // Hz
 #define E100_FREQUENCY            150.f   // Hz
@@ -33,8 +33,9 @@
 #define LOG_FREQUENCY
 #define LOG_ETHANOL
 #define LOG_OUTPUT
+#define LOG_RAW_ECA
 
-#if defined(LOG_ETHANOL) or defined(LOG_OUTPUT) or defined(LOG_FREQUENCY)
+#if defined(LOG_ETHANOL) or defined(LOG_OUTPUT) or defined(LOG_FREQUENCY) or defined(LOG_RAW_ECA)
 #define LOGGING_ENABLED
 #endif
 
@@ -62,11 +63,7 @@ float outputPWM = DEFAULT_OUTPUT_PWM;
 
 // frequency readings
 float frequency = 0.f, dutyCycle = 0.f;
-double sum = 0;
-uint8_t count = 0;
 bool increment = false;
-
-uint32_t pulseHigh, pulseLow, pulseTotal;
 
 const float frequencyScaler = ETHANOL_FREQUENCY_SCALER;
 const float voltageScaler = ETHANOL_VOLTAGE_SCALER;
@@ -81,10 +78,6 @@ bool calculateFrequency();
 void frequencyToEthanolContent(float frequency, float scaler);
 void calculateOutput();
 
-// void onRise();
-// void onFall();
-
 void setupTimer();
-
-uint32_t fall = 0, lastFall = 0, rise = 0;
-uint16_t period = 0, pulse = 0;
+uint32_t period = 0;
+bool newData = false;

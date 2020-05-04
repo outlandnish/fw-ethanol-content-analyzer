@@ -7,7 +7,7 @@ void setup()
     while (!Serial) { yield; }
   #endif
 
-  // pinMode(ETHANOL_OUTPUT, OUTPUT);
+  pinMode(ETHANOL_OUTPUT, OUTPUT);
   // pinMode(ECA_INPUT, INPUT);
 
   // load last stored PWM value for output
@@ -23,7 +23,7 @@ void setup()
 void loop()
 {
   // get ethanol content from sensor frequency
-  if (TCB0.INTFLAGS && calculateFrequency())
+  if (newData && calculateFrequency())
     frequencyToEthanolContent(frequency, frequencyScaler);
 
   // calculate the output voltage and PWM values
@@ -37,9 +37,12 @@ void loop()
   if (!previouslyStored || now - lastSave > SAVE_INTERVAL_MS)
     saveVoltagePWM(outputPWM); 
 
-  #ifdef LOG_FREQUENCY
-    Serial.print("Period (raw):");
+  #ifdef LOG_RAW_ECA
+    Serial.print("Period:");
     Serial.print(period);
+  #endif
+
+  #ifdef LOG_FREQUENCY
     Serial.print("\tFrequency: ");
     Serial.print(frequency);
   #endif
@@ -93,14 +96,15 @@ void setupTimer() {
   // Connect user to event channel 0
   EVSYS.USERTCB0 = EVSYS_CHANNEL_CHANNEL0_gc;
 
-  // enable TCB and use clock prescaler / 2
-  TCB0.CTRLA = TCB_CLKSEL_CLKDIV2_gc | TCB_ENABLE_bm | TCB_RUNSTDBY_bm;
-  // Configure TCB in Input Capture Frequency and Pulse-Width measurement mode
-  TCB0.CTRLB = TCB_CNTMODE_FRQPW_gc;
+  // Configure TCB in Input Capture Frequency Mode
+  TCB0.CTRLB = TCB_CNTMODE_FRQ_gc;
   // Enable Capture or Timeout interrupt
   TCB0.INTCTRL = TCB_CAPT_bm;
   // Enable Input Capture event
   TCB0.EVCTRL = TCB_CAPTEI_bm;
+
+  // enable TCB and use clock from TCA
+  TCB0.CTRLA = TCB_CLKSEL_CLKTCA_gc | TCB_ENABLE_bm | TCB_RUNSTDBY_bm;
 }
 
 // Loads the last output PWM value from EEPROM
@@ -111,12 +115,17 @@ float loadVoltagePWM() {
   // use default if invalid value in EEPROM
   if (isnan(pwm)) {
     previouslyStored = false;
-    Serial.println("Invalid PWM in EEPROM. Using default value");
     pwm = DEFAULT_OUTPUT_PWM;
+
+#ifdef LOGGING_ENABLED
+    Serial.println("Invalid PWM in EEPROM. Using default value");
+#endif
   }
 
+#ifdef LOGGING_ENABLED
   Serial.print("Loaded PWM value: ");
   Serial.println(pwm);
+#endif
 
   return pwm;  
 }
@@ -127,8 +136,13 @@ float loadVoltagePWM() {
 void saveVoltagePWM(float value) {
   EEPROM.put(EEPROM_O2_PWM_ADDRESS, value);
   previouslyStored = true;
+
+#ifdef LOGGING_ENABLED
   Serial.print("Saved PWM value: ");
   Serial.println(value);
+#endif
+
+  lastSave = millis();
 }
 
 /**
@@ -137,15 +151,9 @@ void saveVoltagePWM(float value) {
  * @return boolean - true if valid frequency
 **/
 bool calculateFrequency() {
-  period = TCB0.CNT;
-  pulse = TCB0.CCMP;
+  float tempFrequency = 1.f / ((float) period * (1.f / 256000.f));
 
-  // not sure if this is the correct conversion
-  // I assumed that the period is in microseconds and it seems to chuck out a sane value
-  float tempFrequency = 1000000.f / (float) period;
-  // dutyCycle = pulse / 1000;  // not sure what the conversion factor is. wild guess here
-
-  if (period < MIN_PERIOD)
+  if (tempFrequency < 0 || tempFrequency > MAX_FREQUENCY)
     return false;
 
   // if we haven't calculated frequency, use the current frequency. 
@@ -184,4 +192,9 @@ void calculateOutput() {
 
   // set output pwm value
   outputPWM = (int)ceil(outputVoltage * (PWM_RESOLUTION / OUTPUT_REF_VOLTAGE));
+}
+
+ISR(TCB0_INT_vect) {
+  period = TCB0.CCMP;
+  newData = true;
 }
