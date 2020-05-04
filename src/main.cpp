@@ -23,8 +23,10 @@ void setup()
 void loop()
 {
   // get ethanol content from sensor frequency
-  if (newData && calculateFrequency())
+  if (newData && calculateFrequency()) {
     frequencyToEthanolContent(frequency, frequencyScaler);
+    newData = false;
+  }
 
   // calculate the output voltage and PWM values
   calculateOutput();
