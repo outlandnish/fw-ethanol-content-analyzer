@@ -8,15 +8,15 @@ void setup()
   #endif
 
   pinMode(ETHANOL_OUTPUT, OUTPUT);
-  // pinMode(ECA_INPUT, INPUT);
 
   // load last stored PWM value for output
   outputPWM = loadVoltagePWM();
   analogWrite(ETHANOL_OUTPUT, outputPWM);
 
-  // attachInterrupt(ECA_INPUT, onRise, RISING);
+  // setup hardware timer
   setupTimer();
 
+  // enable global interrupts
   sei();
 }
 
@@ -76,7 +76,7 @@ void loop()
   into timer TCB0 which counts the time between the positive and negative edges of the signal
 */
 void setupTimer() {
-  // PD4
+  // Port D, Pin 4 (Analog Pin 6) - disable digital input buffer
   PORTD.PIN4CTRL = PORT_ISC_INPUT_DISABLE_gc;
 
   // Use internal voltage reference @ 1.5V
@@ -95,7 +95,7 @@ void setupTimer() {
 
   // setup AC output as event generator for channel 0
   EVSYS.CHANNEL0 = EVSYS_GENERATOR_AC0_OUT_gc;
-  // Connect user to event channel 0
+  // Connect TCB0 user to event channel 0
   EVSYS.USERTCB0 = EVSYS_CHANNEL_CHANNEL0_gc;
 
   // Configure TCB in Input Capture Frequency Mode
@@ -105,7 +105,7 @@ void setupTimer() {
   // Enable Input Capture event
   TCB0.EVCTRL = TCB_CAPTEI_bm;
 
-  // enable TCB and use clock from TCA
+  // enable TCB and use clock from TCA (250 kHz)
   TCB0.CTRLA = TCB_CLKSEL_CLKTCA_gc | TCB_ENABLE_bm | TCB_RUNSTDBY_bm;
 }
 
@@ -196,6 +196,9 @@ void calculateOutput() {
   outputPWM = (int)ceil(outputVoltage * (PWM_RESOLUTION / OUTPUT_REF_VOLTAGE));
 }
 
+/**
+ *  Interrupt Service Routine for when the timer has detected a PWM cycle
+**/
 ISR(TCB0_INT_vect) {
   period = TCB0.CCMP;
   newData = true;
